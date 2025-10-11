@@ -25,9 +25,9 @@ local config = function()
             ['<C-b>'] = cmp.mapping.scroll_docs(-4),
             ['<C-f>'] = cmp.mapping.scroll_docs(4),
             ['<C-e>'] = cmp.mapping.abort(),
-            ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Press Enter to confirm
-            ['<Tab>'] = cmp.mapping.select_next_item(),        -- Tab to select next item
-            ['<S-Tab>'] = cmp.mapping.select_prev_item(),      -- Shift+Tab to select previous item
+            ['<CR>'] = cmp.mapping.confirm({ select = false }), -- Press Enter to confirm
+            ['<Tab>'] = cmp.mapping.select_next_item(),         -- Tab to select next item
+            ['<S-Tab>'] = cmp.mapping.select_prev_item(),       -- Shift+Tab to select previous item
         }),
         sources = cmp.config.sources({
             { name = 'nvim_lsp' },
@@ -42,10 +42,10 @@ local config = function()
 
     require('mason-lspconfig').setup({
         ensure_installed = { "pyright", "clangd", "lua_ls",
-            "rust_analyzer", "texlab", "html", "ts_ls" },
+            "rust_analyzer", "texlab", "html", "ts_ls", "jsonls" },
     })
     require('mason-null-ls').setup({
-        ensure_installed = { "black", "prettier", "rustfmt" },
+        ensure_installed = { "black", "prettier", "rustfmt", " hadolint" },
         automatic_installation = true,
     })
     lspconfig.lua_ls.setup({
@@ -88,6 +88,7 @@ local config = function()
                     "typescript",
                 },
             }),
+
         },
     })
     vim.api.nvim_create_autocmd("LspAttach", {

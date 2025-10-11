@@ -4,3 +4,10 @@ export DYLD_LIBRARY_PATH=/opt/homebrew/Cellar/glib/2.76.4/lib:/opt/homebrew/Cell
 
 export PATH="/opt/homebrew/opt/cocoapods:$PATH"  
 
+
+# Created by `pipx` on 2025-05-22 15:39:27
+export PATH="$PATH:/Users/k_yo/.local/bin"
+
+# Added by OrbStack: command-line tools and integration
+# This won't be added again if you remove it.
+source ~/.orbstack/shell/init.zsh 2>/dev/null || :

@@ -48,14 +48,14 @@ local config = function()
         adapters = {
             copilot = function()
                 return require("codecompanion.adapters").extend("copilot", {
-                    schema = {
-                        model = {
-                            default = "claude-3.7-sonnet"
-                        },
-                        max_tokens = {
-                            default = 1000000,
-                        },
-                    }
+                    -- schema = {
+                    --     model = {
+                    --         default = "gpt-5"
+                    --     },
+                    --     max_tokens = {
+                    --         default = 1000000,
+                    --     },
+                    -- }
                 })
             end,
         },
@@ -121,7 +121,7 @@ local config = function()
         callback = function()
             vim.cmd("wincmd L")
             vim.cmd("vertical resize 50")
-        end
+        end,
     })
 
     vim.api.nvim_create_autocmd("VimEnter", {
@@ -211,7 +211,7 @@ local config = function()
                             end
                         end
                         return original_provider[key]
-                    end
+                    end,
                 })
 
                 -- Override the display method
