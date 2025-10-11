@@ -139,47 +139,10 @@ require("lazy").setup({
         opts = {},
     },
     {
-        "vhyrro/luarocks.nvim",
-        priority = 1001, -- this plugin needs to run before anything else
-        opts = {
-            rocks = { "magick" },
-        },
-    },
-    -- {
-    --     "3rd/image.nvim",
-    --     branch = "release-please--branches--master",
-    --     dependencies = { "luarocks.nvim" },
-    --     config = function()
-    --         require("image").setup({
-    --             backend = "kitty", -- または "ueberzug"
-    --             -- backend = "ueberzug",     -- または "ueberzug"
-    --             tmux_show_only_in_active_window = true
-    --
-    --         })
-    --     end
-    --
-    -- },
-    {
         "lervag/vimtex",
         lazy = false,
         config = require("configs.vimtex"),
-        -- config = function()
-        --     vim.notify("Loading vimtex configuration", vim.log.levels.INFO)
-        -- end,
-
     },
-    -- {
-    --     "AckslD/nvim-neoclip.lua",
-    --     dependencies = {
-    --         -- you'll need at least one of these
-    --         { 'nvim-telescope/telescope.nvim' },
-    --         -- {'ibhagwan/fzf-lua'},
-    --     },
-    --     config = function()
-    --         require('neoclip').setup()
-    --         vim.keymap.set("n", "fpp", "<cmd>Telescope neoclip<CR>", { noremap = true, silent = true })
-    --     end,
-    -- },
     -- {
     --     'VonHeikemen/fine-cmdline.nvim',
     --     dependencies = {

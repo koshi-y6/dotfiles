@@ -1,1 +1,7 @@
 .config/tmux/.tmux/plugins/*
+
+# Serena configuration
+.serena/
+
+# Claude snapshots
+.claude-snapshots/

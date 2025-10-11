@@ -140,6 +140,8 @@ else
 fi
 unset __conda_setup
 # <<< conda initialize <<<
+# alias 
+alias pwdc='pwd | pbcopy && pwd'
 
 export PATH="/opt/homebrew/opt/libomp/bin:$PATH"
 export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
