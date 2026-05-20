@@ -6,7 +6,7 @@ export PATH="/opt/homebrew/opt/cocoapods:$PATH"
 
 
 # Created by `pipx` on 2025-05-22 15:39:27
-export PATH="$PATH:/Users/k_yo/.local/bin"
+export PATH="$PATH:$HOME/.local/bin"
 
 # Added by OrbStack: command-line tools and integration
 # This won't be added again if you remove it.
