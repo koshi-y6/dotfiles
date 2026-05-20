@@ -101,21 +101,21 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=cyan'
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # Created by `pipx` on 2025-05-22 15:39:27
-export PATH="$PATH:/Users/k_yo/.local/bin"
+export PATH="$PATH:$HOME/.local/bin"
 
 export SERENA_HOME="$HOME/serena"
 alias serena="uv run --directory \$SERENA_HOME serena"
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$('/Users/k_yo/miniforge3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+__conda_setup="$('$HOME/miniforge3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
   eval "$__conda_setup"
 else
-  if [ -f "/Users/k_yo/miniforge3/etc/profile.d/conda.sh" ]; then
-    . "/Users/k_yo/miniforge3/etc/profile.d/conda.sh"
+  if [ -f "$HOME/miniforge3/etc/profile.d/conda.sh" ]; then
+    . "$HOME/miniforge3/etc/profile.d/conda.sh"
   else
-    export PATH="/Users/k_yo/miniforge3/bin:$PATH"
+    export PATH="$HOME/miniforge3/bin:$PATH"
   fi
 fi
 unset __conda_setup
