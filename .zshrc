@@ -10,15 +10,12 @@ fi
 # ────────────────────────────────────────────────────────────────
 BREW_PREFIX=${BREW_PREFIX:-$(brew --prefix)}
 export ZPLUG_HOME=$BREW_PREFIX/opt/zplug
-export PYENV_ROOT="$HOME/.pyenv"
-export NVM_DIR="$HOME/.nvm"
 
 # ────────────────────────────────────────────────────────────────
 # PATH settings
 # ────────────────────────────────────────────────────────────────
 typeset -U path
 path=(
-  $HOME/.nodebrew/current/bin
   $HOME/.cargo/bin
   "$HOME/git_lib/termpdf.py"
   $path
@@ -44,6 +41,11 @@ fi
 zplug load
 
 # ────────────────────────────────────────────────────────────────
+# mise (replaces pyenv, nvm, rustup)
+# ────────────────────────────────────────────────────────────────
+eval "$(mise activate zsh)"
+
+# ────────────────────────────────────────────────────────────────
 # Prezto (if installed)
 # ────────────────────────────────────────────────────────────────
 ZPREZTO_INIT="${ZDOTDIR:-$HOME}/.zprezto/init.zsh"
@@ -66,30 +68,6 @@ if [[ -f "$P10K_CONFIG" ]]; then
   fi
   source "$P10K_CONFIG"
 fi
-
-# ────────────────────────────────────────────────────────────────
-# Lazy-load NVM
-# ────────────────────────────────────────────────────────────────
-function load_nvm() {
-  unset -f nvm node npm npx yarn
-  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use
-  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
-}
-for cmd in nvm node npm npx yarn; do
-  eval "${cmd}(){ load_nvm; ${cmd} \$@ }"
-done
-
-# ────────────────────────────────────────────────────────────────
-# Lazy-load pyenv
-# ────────────────────────────────────────────────────────────────
-function load_pyenv() {
-  unset -f pyenv python python3 pip pip3
-  command -v pyenv >/dev/null || path=($PYENV_ROOT/bin $path)
-  eval "$(pyenv init - --no-rehash zsh)"
-}
-for cmd in pyenv python python3 pip pip3; do
-  eval "${cmd}(){ load_pyenv; ${cmd} \$@ }"
-done
 
 # ────────────────────────────────────────────────────────────────
 # zoxide (fast cd)
@@ -118,11 +96,13 @@ bindkey '^R' peco-history-selection
 # ────────────────────────────────────────────────────────────────
 export DYLD_FALLBACK_LIBRARY_PATH="$BREW_PREFIX/lib:$DYLD_FALLBACK_LIBRARY_PATH"
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=cyan'
+
 # Redundant fallback (safe)
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 # Created by `pipx` on 2025-05-22 15:39:27
 export PATH="$PATH:/Users/k_yo/.local/bin"
+
 export SERENA_HOME="$HOME/serena"
 alias serena="uv run --directory \$SERENA_HOME serena"
 
@@ -130,17 +110,18 @@ alias serena="uv run --directory \$SERENA_HOME serena"
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('/Users/k_yo/miniforge3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
+  eval "$__conda_setup"
 else
-    if [ -f "/Users/k_yo/miniforge3/etc/profile.d/conda.sh" ]; then
-        . "/Users/k_yo/miniforge3/etc/profile.d/conda.sh"
-    else
-        export PATH="/Users/k_yo/miniforge3/bin:$PATH"
-    fi
+  if [ -f "/Users/k_yo/miniforge3/etc/profile.d/conda.sh" ]; then
+    . "/Users/k_yo/miniforge3/etc/profile.d/conda.sh"
+  else
+    export PATH="/Users/k_yo/miniforge3/bin:$PATH"
+  fi
 fi
 unset __conda_setup
-# <<< conda initialize <<<
-# alias 
+# <<< conda initialize <
+
+# alias
 alias pwdc='pwd | pbcopy && pwd'
 
 export PATH="/opt/homebrew/opt/libomp/bin:$PATH"
