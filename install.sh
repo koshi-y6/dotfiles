@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # install.sh - Dotfiles installation script
 # This script installs and configures your dotfiles
 
@@ -13,7 +12,7 @@ NC='\033[0m' # No Color
 # Display logo
 echo -e "${BLUE}"
 echo '======================================'
-echo '        DOTFILES INSTALLER           '
+echo '       DOTFILES INSTALLER             '
 echo '======================================'
 echo -e "${NC}"
 
@@ -44,6 +43,7 @@ create_symlink() {
 mkdir -p "$HOME/.config/nvim"
 mkdir -p "$HOME/.config/tmux"
 mkdir -p "$HOME/.config/wezterm"
+mkdir -p "$HOME/.config/mise"
 
 # Link Zsh related files
 create_symlink "$DOTFILES_DIR/.zshrc" "$HOME/.zshrc"
@@ -56,19 +56,16 @@ create_symlink "$DOTFILES_DIR/.zlogout" "$HOME/.zlogout"
 create_symlink "$DOTFILES_DIR/.config/tmux/.tmux.conf" "$HOME/.tmux.conf"
 
 # Handle .tmux directory properly to avoid symlink loop
-# First check if .tmux in dotfiles is a symlink
 if [ -L "$DOTFILES_DIR/.config/tmux/.tmux" ]; then
     echo -e "${YELLOW}Removing existing symlink: $DOTFILES_DIR/.config/tmux/.tmux${NC}"
     rm "$DOTFILES_DIR/.config/tmux/.tmux"
 fi
 
-# Create directory if it doesn't exist
 if [ ! -d "$DOTFILES_DIR/.config/tmux/.tmux" ]; then
     echo -e "${YELLOW}Creating .tmux directory: $DOTFILES_DIR/.config/tmux/.tmux${NC}"
     mkdir -p "$DOTFILES_DIR/.config/tmux/.tmux/plugins"
 fi
 
-# Create symlink for .tmux
 create_symlink "$DOTFILES_DIR/.config/tmux/.tmux" "$HOME/.tmux"
 
 # Link Neovim configuration
@@ -76,6 +73,9 @@ create_symlink "$DOTFILES_DIR/.config/nvim" "$HOME/.config/nvim"
 
 # Link Wezterm configuration
 create_symlink "$DOTFILES_DIR/term/wezterm.lua" "$HOME/.config/wezterm/wezterm.lua"
+
+# Link mise configuration
+create_symlink "$DOTFILES_DIR/.config/mise/config.toml" "$HOME/.config/mise/config.toml"
 
 # Link Brewfile
 create_symlink "$DOTFILES_DIR/Brewfile" "$HOME/Brewfile"
@@ -94,21 +94,16 @@ install_homebrew() {
     if ! command -v brew &> /dev/null; then
         echo -e "${YELLOW}Installing Homebrew...${NC}"
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-        
-        # Set up Homebrew path
+
         if [[ "$OSTYPE" == "darwin"* ]]; then
-            # macOS
             if [[ "$(uname -m)" == "arm64" ]]; then
-                # Apple Silicon
                 echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $HOME/.zprofile
                 eval "$(/opt/homebrew/bin/brew shellenv)"
             else
-                # Intel
                 echo 'eval "$(/usr/local/bin/brew shellenv)"' >> $HOME/.zprofile
                 eval "$(/usr/local/bin/brew shellenv)"
             fi
         fi
-        
         echo -e "${GREEN}Homebrew installed${NC}"
     else
         echo -e "${GREEN}Homebrew already installed${NC}"
@@ -117,7 +112,6 @@ install_homebrew() {
 
 # Setup Zsh plugins
 setup_zsh_plugins() {
-    # Install Prezto
     if [ ! -d "${ZDOTDIR:-$HOME}/.zprezto" ]; then
         echo -e "${YELLOW}Installing Prezto...${NC}"
         git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
@@ -125,8 +119,7 @@ setup_zsh_plugins() {
     else
         echo -e "${GREEN}Prezto already installed${NC}"
     fi
-    
-    # Install Powerlevel10k
+
     if [ ! -d "${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k" ]; then
         echo -e "${YELLOW}Installing Powerlevel10k...${NC}"
         git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k"
@@ -134,13 +127,11 @@ setup_zsh_plugins() {
     else
         echo -e "${GREEN}Powerlevel10k already installed${NC}"
     fi
-    
-    # Symlink p10k config file if it exists
+
     if [ -f "$DOTFILES_DIR/.p10k.zsh" ]; then
         create_symlink "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
     fi
 
-    # Compile zshrc for faster loading
     if [ -f "$HOME/.zshrc" ]; then
         echo -e "${YELLOW}Compiling .zshrc...${NC}"
         zcompile "$HOME/.zshrc"
@@ -150,38 +141,23 @@ setup_zsh_plugins() {
 
 # Setup additional configurations
 setup_additional_configs() {
-    # Create NVM directory (needed even if installed via brew)
-    if [ ! -d "$HOME/.nvm" ]; then
-        echo -e "${YELLOW}Creating NVM directory...${NC}"
-        mkdir -p "$HOME/.nvm"
-        echo -e "${GREEN}NVM directory created${NC}"
-    fi
-    
     # Initialize Zoxide
     if command -v zoxide &> /dev/null; then
         echo -e "${YELLOW}Initializing Zoxide...${NC}"
         zoxide init zsh > "${ZDOTDIR:-$HOME}/.zoxide.zsh"
         echo -e "${GREEN}Zoxide initialized${NC}"
     fi
-    
+
     # Create necessary directories
     mkdir -p "$HOME/.cache"
-    mkdir -p "$HOME/.pyenv"
-    
-    # Create Nodebrew directory
-    if [ ! -d "$HOME/.nodebrew/current/bin" ]; then
-        echo -e "${YELLOW}Creating Nodebrew directory...${NC}"
-        mkdir -p "$HOME/.nodebrew/current/bin"
-        echo -e "${GREEN}Nodebrew directory created${NC}"
-    fi
-    
-    # Create Cargo directory
+
+    # Create Cargo directory (for cargo install if needed)
     if [ ! -d "$HOME/.cargo/bin" ]; then
         echo -e "${YELLOW}Creating Cargo directory...${NC}"
         mkdir -p "$HOME/.cargo/bin"
         echo -e "${GREEN}Cargo directory created${NC}"
     fi
-    
+
     # Initialize Fzf (included in Brewfile)
     if [ -f "/usr/local/opt/fzf/install" ]; then
         echo -e "${YELLOW}Initializing Fzf...${NC}"
@@ -192,12 +168,24 @@ setup_additional_configs() {
         /opt/homebrew/opt/fzf/install --key-bindings --completion --no-update-rc
         echo -e "${GREEN}Fzf initialized${NC}"
     fi
-    
+
     # Create Zathura config directory
     mkdir -p "$HOME/.config/zathura"
 }
 
+# Install runtimes via mise
+install_mise_runtimes() {
+    if command -v mise &> /dev/null; then
+        echo -e "${YELLOW}Installing runtimes via mise...${NC}"
+        mise install
+        echo -e "${GREEN}mise runtimes installed${NC}"
+    else
+        echo -e "${RED}mise not found. Skipping runtime installation.${NC}"
+    fi
+}
+
 # Main execution
+
 # Install Homebrew
 install_homebrew
 
@@ -205,6 +193,9 @@ install_homebrew
 echo -e "${YELLOW}Installing packages from Brewfile...${NC}"
 brew bundle --file="$HOME/Brewfile"
 echo -e "${GREEN}Brewfile installation completed${NC}"
+
+# Install runtimes via mise (Brewfile already installed mise)
+install_mise_runtimes
 
 # Initialize additional settings
 echo -e "${BLUE}==== Initializing additional settings ====${NC}"
