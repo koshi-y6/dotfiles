@@ -1,1 +1,7 @@
+[tools]
+python = "3.13"
+node = "lts"
+rust = "stable"
 
+[settings]
+idiomatic_version_file_enable_tools = ["python", "node"]
