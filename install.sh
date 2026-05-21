@@ -52,6 +52,9 @@ create_symlink "$DOTFILES_DIR/.zprofile" "$HOME/.zprofile"
 create_symlink "$DOTFILES_DIR/.zlogin" "$HOME/.zlogin"
 create_symlink "$DOTFILES_DIR/.zlogout" "$HOME/.zlogout"
 
+# Link Hammerspoon configuration
+create_symlink "$DOTFILES_DIR/.config/hammerspoon" "$HOME/.hammerspoon"
+
 # Link Tmux.conf
 create_symlink "$DOTFILES_DIR/.config/tmux/.tmux.conf" "$HOME/.tmux.conf"
 
@@ -209,3 +212,4 @@ echo -e "${GREEN}Tmux plugins installed${NC}"
 
 echo -e "${GREEN}Installation completed!${NC}"
 echo -e "${YELLOW}To apply the new settings, restart your terminal or run 'source ~/.zshrc'${NC}"
+

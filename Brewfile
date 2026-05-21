@@ -21,6 +21,7 @@ brew "wget"
 brew "yazi"
 brew "zplug"
 brew "bib-tool"
+brew "lazygit"
 
 # === Build / System Libraries ===
 brew "cmake"
@@ -82,3 +83,4 @@ cask "font-fira-code-nerd-font"
 cask "font-hack-nerd-font"
 cask "font-hackgen"
 cask "font-hackgen-nerd"
+cask "hammerspoon"
