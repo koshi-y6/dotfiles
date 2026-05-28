@@ -72,6 +72,43 @@ clone_repo() {
     fi
 }
 
+# Remove empty leftover plugin directories under a tpm plugins dir.
+# tpm's install_plugins treats an existing (even empty) directory as
+# "already installed" and skips cloning. Removing the empty husks lets
+# tpm clone them properly. Directories with real content are left
+# untouched, so no unnecessary re-download happens (no speed penalty).
+#
+# Usage: clean_empty_plugin_dirs <plugins_dir> [keep_name ...]
+clean_empty_plugin_dirs() {
+    local plugins_dir="$1"
+    shift
+    local keep=("$@")
+
+    [ -d "$plugins_dir" ] || return 0
+
+    local dir name skip k
+    for dir in "$plugins_dir"/*/; do
+        [ -d "$dir" ] || continue
+        name="$(basename "$dir")"
+
+        # Never touch directories we are told to keep (e.g. tpm itself)
+        skip=0
+        for k in "${keep[@]}"; do
+            if [ "$name" = "$k" ]; then
+                skip=1
+                break
+            fi
+        done
+        [ "$skip" -eq 1 ] && continue
+
+        # Only remove if the directory has no content (ignoring . and ..)
+        if [ -z "$(ls -A "$dir" 2>/dev/null)" ]; then
+            echo -e "${YELLOW}Removing empty plugin dir: $name${NC}"
+            rm -rf "$dir"
+        fi
+    done
+}
+
 # Create necessary directories
 mkdir -p "$HOME/.config/nvim"
 mkdir -p "$HOME/.config/tmux"
@@ -241,8 +278,15 @@ setup_zsh_plugins
 setup_additional_configs
 
 # Install Tmux plugins
-# Guard against a missing tpm so we don't crash if the clone failed earlier.
-INSTALL_PLUGINS="$DOTFILES_DIR/.config/tmux/.tmux/plugins/tpm/bin/install_plugins"
+# 1) Clean up empty leftover plugin dirs (keep tpm). Empty husks make tpm's
+#    install_plugins skip cloning, so removing them lets the real plugins
+#    (resurrect, continuum, etc.) install. Non-empty dirs are left alone,
+#    so already-installed plugins are NOT re-downloaded (no speed penalty).
+# 2) Guard against a missing tpm so we don't crash if the clone failed earlier.
+TMUX_PLUGINS_DIR="$DOTFILES_DIR/.config/tmux/.tmux/plugins"
+clean_empty_plugin_dirs "$TMUX_PLUGINS_DIR" "tpm"
+
+INSTALL_PLUGINS="$TMUX_PLUGINS_DIR/tpm/bin/install_plugins"
 if [ -x "$INSTALL_PLUGINS" ]; then
     echo -e "${YELLOW}Installing Tmux plugins...${NC}"
     "$INSTALL_PLUGINS"
