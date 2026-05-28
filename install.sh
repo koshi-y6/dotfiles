@@ -39,6 +39,39 @@ create_symlink() {
     ln -sf "$src" "$dst"
 }
 
+# Function to clone a git repository robustly.
+# - Judges installation by the presence of a sentinel FILE, not just the directory.
+#   (An empty leftover directory must not be treated as "already installed".)
+# - Cleans up any partial/empty directory before cloning.
+# - Detects clone failures instead of silently continuing.
+#
+# Usage: clone_repo <name> <repo_url> <dest_dir> <sentinel_file> [extra git args...]
+clone_repo() {
+    local name="$1"
+    local repo_url="$2"
+    local dest_dir="$3"
+    local sentinel="$4"
+    shift 4
+    local extra_args=("$@")
+
+    if [ -f "$dest_dir/$sentinel" ]; then
+        echo -e "${GREEN}${name} already installed${NC}"
+        return 0
+    fi
+
+    echo -e "${YELLOW}Installing ${name}...${NC}"
+    # Remove any partial/empty leftover so the clone starts clean
+    rm -rf "$dest_dir"
+
+    if git clone "${extra_args[@]}" "$repo_url" "$dest_dir"; then
+        echo -e "${GREEN}${name} installed${NC}"
+        return 0
+    else
+        echo -e "${RED}Failed to clone ${name} from ${repo_url}. Check your network and try again.${NC}"
+        return 1
+    fi
+}
+
 # Create necessary directories
 mkdir -p "$HOME/.config/nvim"
 mkdir -p "$HOME/.config/tmux"
@@ -84,13 +117,12 @@ create_symlink "$DOTFILES_DIR/.config/mise/config.toml" "$HOME/.config/mise/conf
 create_symlink "$DOTFILES_DIR/Brewfile" "$HOME/Brewfile"
 
 # Install Tmux Plugin Manager
-if [ ! -d "$DOTFILES_DIR/.config/tmux/.tmux/plugins/tpm" ]; then
-    echo -e "${YELLOW}Installing Tmux Plugin Manager...${NC}"
-    git clone https://github.com/tmux-plugins/tpm "$DOTFILES_DIR/.config/tmux/.tmux/plugins/tpm"
-    echo -e "${GREEN}Tmux Plugin Manager installed${NC}"
-else
-    echo -e "${GREEN}Tmux Plugin Manager already installed${NC}"
-fi
+# Judge by the actual "tpm" executable, not just the directory, so an empty
+# leftover directory is correctly treated as "not installed".
+clone_repo "Tmux Plugin Manager" \
+    "https://github.com/tmux-plugins/tpm" \
+    "$DOTFILES_DIR/.config/tmux/.tmux/plugins/tpm" \
+    "tpm"
 
 # Install Homebrew
 install_homebrew() {
@@ -107,7 +139,12 @@ install_homebrew() {
                 eval "$(/usr/local/bin/brew shellenv)"
             fi
         fi
-        echo -e "${GREEN}Homebrew installed${NC}"
+
+        if command -v brew &> /dev/null; then
+            echo -e "${GREEN}Homebrew installed${NC}"
+        else
+            echo -e "${RED}Homebrew installation failed. Check the output above.${NC}"
+        fi
     else
         echo -e "${GREEN}Homebrew already installed${NC}"
     fi
@@ -115,21 +152,19 @@ install_homebrew() {
 
 # Setup Zsh plugins
 setup_zsh_plugins() {
-    if [ ! -d "${ZDOTDIR:-$HOME}/.zprezto" ]; then
-        echo -e "${YELLOW}Installing Prezto...${NC}"
-        git clone --recursive https://github.com/sorin-ionescu/prezto.git "${ZDOTDIR:-$HOME}/.zprezto"
-        echo -e "${GREEN}Prezto installed${NC}"
-    else
-        echo -e "${GREEN}Prezto already installed${NC}"
-    fi
+    # Prezto: judge by init.zsh, not the directory.
+    clone_repo "Prezto" \
+        "https://github.com/sorin-ionescu/prezto.git" \
+        "${ZDOTDIR:-$HOME}/.zprezto" \
+        "init.zsh" \
+        --recursive
 
-    if [ ! -d "${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k" ]; then
-        echo -e "${YELLOW}Installing Powerlevel10k...${NC}"
-        git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k"
-        echo -e "${GREEN}Powerlevel10k installed${NC}"
-    else
-        echo -e "${GREEN}Powerlevel10k already installed${NC}"
-    fi
+    # Powerlevel10k: judge by the theme file, not the directory.
+    clone_repo "Powerlevel10k" \
+        "https://github.com/romkatv/powerlevel10k.git" \
+        "${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k" \
+        "powerlevel10k.zsh-theme" \
+        --depth=1
 
     if [ -f "$DOTFILES_DIR/.p10k.zsh" ]; then
         create_symlink "$DOTFILES_DIR/.p10k.zsh" "$HOME/.p10k.zsh"
@@ -206,10 +241,15 @@ setup_zsh_plugins
 setup_additional_configs
 
 # Install Tmux plugins
-echo -e "${YELLOW}Installing Tmux plugins...${NC}"
-"$DOTFILES_DIR/.config/tmux/.tmux/plugins/tpm/bin/install_plugins"
-echo -e "${GREEN}Tmux plugins installed${NC}"
+# Guard against a missing tpm so we don't crash if the clone failed earlier.
+INSTALL_PLUGINS="$DOTFILES_DIR/.config/tmux/.tmux/plugins/tpm/bin/install_plugins"
+if [ -x "$INSTALL_PLUGINS" ]; then
+    echo -e "${YELLOW}Installing Tmux plugins...${NC}"
+    "$INSTALL_PLUGINS"
+    echo -e "${GREEN}Tmux plugins installed${NC}"
+else
+    echo -e "${RED}tpm install_plugins not found. Skipping Tmux plugin installation.${NC}"
+fi
 
 echo -e "${GREEN}Installation completed!${NC}"
 echo -e "${YELLOW}To apply the new settings, restart your terminal or run 'source ~/.zshrc'${NC}"
-
