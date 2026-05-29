@@ -23,8 +23,9 @@ require("lazy").setup({
         config = require("configs.nightfox"),
     },
     {
-        "norcalli/nvim-colorizer.lua",
-        config = require("configs.nvim-colorizer"),
+        "catgoose/nvim-colorizer.lua",
+        event = "BufReadPre",
+        opts = {},
     },
     {
         "nvim-tree/nvim-web-devicons",
@@ -113,17 +114,17 @@ require("lazy").setup({
     {
         "AndreM222/copilot-lualine",
     },
-    {
-        "olimorris/codecompanion.nvim",
-        -- tag = "v15.0.0",
-        -- tag = "v14.2.0",
-        dependencies = {
-            "nvim-lua/plenary.nvim",
-            -- "nvim-telescope/telescope.nvim",
-            "nvim-treesitter/nvim-treesitter",
-        },
-        config = require("configs.codecompanion"),
-    },
+    -- {
+    --     "olimorris/codecompanion.nvim",
+    --     -- tag = "v15.0.0",
+    --     -- tag = "v14.2.0",
+    --     dependencies = {
+    --         "nvim-lua/plenary.nvim",
+    --         -- "nvim-telescope/telescope.nvim",
+    --         "nvim-treesitter/nvim-treesitter",
+    --     },
+    --     config = require("configs.codecompanion"),
+    -- },
     {
         "keaising/im-select.nvim",
         config = function()
