@@ -44,6 +44,7 @@ local config = function()
         server_opts_overrides = {
             -- model = "claude-3.7-sonnet",
         },
+
     })
 end
 
