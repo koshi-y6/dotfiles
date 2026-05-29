@@ -57,6 +57,7 @@ require("lazy").setup({
     {
         "nvim-treesitter/nvim-treesitter",
         priority = 1000,
+        branch = "master",
         config = require("configs.nvim-treesitter"),
     },
     {
