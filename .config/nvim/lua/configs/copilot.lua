@@ -42,7 +42,7 @@ local config = function()
         },
         copilot_node_command = 'node', -- Node.js version must be > 18.x
         server_opts_overrides = {
-            model = "claude-3.7-sonnet",
+            -- model = "claude-3.7-sonnet",
         },
     })
 end
