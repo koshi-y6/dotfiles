@@ -1,20 +1,41 @@
 local config = function()
     local telescope = require('telescope')
 
-    local themes = require('telescope.themes')
-
     -- Telescopeの設定
     telescope.setup({
-        defaults = themes.get_dropdown(),
+        defaults = {
+            layout_strategy = "horizontal",
+            sorting_strategy = "ascending",
+            layout_config = {
+                prompt_position = "top",
+                horizontal = {
+                    preview_width = 0.58,
+                    width = 0.92,
+                    height = 0.88,
+                },
+            },
+            preview = {
+                hide_on_startup = false,
+            },
+        },
         pickers = {
             find_files = {
-                hidden = true
+                hidden = true,
             },
             live_grep = {
-                hidden = true
+                hidden = true,
+                layout_strategy = "horizontal",
+                layout_config = {
+                    prompt_position = "top",
+                    horizontal = {
+                        preview_width = 0.6,
+                        width = 0.95,
+                        height = 0.9,
+                    },
+                },
             },
             buffers = {
-                hidden = true
+                hidden = true,
             }
         }
 

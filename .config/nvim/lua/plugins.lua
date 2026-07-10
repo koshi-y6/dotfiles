@@ -48,6 +48,49 @@ require("lazy").setup({
         dependencies = { "nvim-lua/plenary.nvim" },
         config = require("configs.telescope"),
     },
+    {
+        "rest-nvim/rest.nvim",
+        tag = "v3.8.5",
+        build = false,
+        ft = { "http" },
+        cmd = { "Rest" },
+        dependencies = {
+            "nvim-treesitter/nvim-treesitter",
+            "nvim-neotest/nvim-nio",
+            "j-hui/fidget.nvim",
+        },
+        config = function()
+            local group = vim.api.nvim_create_augroup("rest-nvim-layout", { clear = true })
+
+            vim.api.nvim_create_autocmd("FileType", {
+                group = group,
+                pattern = "rest_nvim_result",
+                callback = function(args)
+                    vim.schedule(function()
+                        local target_win = nil
+                        for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
+                            if vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_get_buf(win) == args.buf then
+                                target_win = win
+                                break
+                            end
+                        end
+
+                        if not target_win then
+                            return
+                        end
+
+                        local current_win = vim.api.nvim_get_current_win()
+                        vim.api.nvim_set_current_win(target_win)
+                        vim.cmd.wincmd("L")
+
+                        if vim.api.nvim_win_is_valid(current_win) then
+                            vim.api.nvim_set_current_win(current_win)
+                        end
+                    end)
+                end,
+            })
+        end,
+    },
     -- {
     --     'nvim-telescope/telescope-ui-select.nvim',
     -- },
