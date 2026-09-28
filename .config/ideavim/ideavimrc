@@ -1,0 +1,80 @@
+" IdeaVim configuration
+" Keep the keys consistent with .config/nvim while delegating IDE features
+" to IntelliJ actions.
+
+let mapleader = " "
+
+" Basic editing -------------------------------------------------------------
+inoremap jj <Esc>
+
+" Match the vertical movement used by Neovim.
+nnoremap J 3j
+nnoremap K 3k
+
+" Move in Insert mode without leaving it.
+inoremap <C-h> <Left>
+inoremap <C-j> <Down>
+inoremap <C-k> <Up>
+inoremap <C-l> <Right>
+
+" Search for the word under the caret without leaving the caret on the next
+" match.
+nnoremap * *N
+
+" Editor integration --------------------------------------------------------
+set number
+set cursorline
+set clipboard=unnamedplus,ideaput
+set ideamarks
+set idearefactormode=keep
+
+" IdeaVim's built-in equivalent of Comment.nvim (gc, gcc).
+set commentary
+
+" Keep Vim in charge of the Ctrl keys that are explicitly mapped above.
+" Leave Ctrl-A to IntelliJ's current Inline Completion shortcut in Insert
+" mode, while retaining Vim's increment command in Normal mode.
+sethandler <C-h> i:vim
+sethandler <C-j> i:vim
+sethandler <C-k> i:vim
+sethandler <C-l> i:vim
+sethandler <C-a> i:ide
+
+" Code navigation -----------------------------------------------------------
+" <Action> mappings must be recursive mappings in IdeaVim, so use nmap rather
+" than nnoremap here.
+nmap gh <Action>(ShowHoverInfo)
+nmap gd <Action>(GotoDeclaration)
+nmap gD <Action>(GotoTypeDeclaration)
+nmap gi <Action>(GotoImplementation)
+nmap gt <Action>(GotoTypeDeclaration)
+nmap gr <Action>(FindUsages)
+nmap gn <Action>(RenameElement)
+nmap ga <Action>(ShowIntentionActions)
+nmap gf <Action>(ReformatCode)
+nmap ge <Action>(ShowErrorDescription)
+nmap g] <Action>(GotoNextError)
+nmap g[ <Action>(GotoPreviousError)
+
+" Files and search -----------------------------------------------------------
+nmap <leader><Space> <Action>(SearchEverywhere)
+nmap <leader>ff <Action>(GotoFile)
+nmap <leader>fg <Action>(GotoFile)
+nmap <leader>/ <Action>(FindInPath)
+nmap <leader>sg <Action>(FindInPath)
+nmap <leader>fb <Action>(Switcher)
+nmap <leader>, <Action>(Switcher)
+nmap <leader>fr <Action>(RecentFiles)
+nmap <leader>e <Action>(ActivateProjectToolWindow)
+nmap <leader>ss <Action>(FileStructurePopup)
+
+" Preserve the existing Telescope-style shortcuts too.
+nmap fff <Action>(GotoFile)
+nmap ffg <Action>(FindInPath)
+nmap ffb <Action>(Switcher)
+
+" Editor tabs ---------------------------------------------------------------
+nmap [b <Action>(PreviousTab)
+nmap ]b <Action>(NextTab)
+nmap <leader>bd <Action>(CloseContent)
+nmap <leader>c <Action>(CloseContent)

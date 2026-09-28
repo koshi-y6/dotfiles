@@ -116,6 +116,7 @@ clean_empty_plugin_dirs() {
 
 # Create necessary directories
 mkdir -p "$HOME/.config/nvim"
+mkdir -p "$HOME/.config/ideavim"
 mkdir -p "$HOME/.config/tmux"
 mkdir -p "$HOME/.config/wezterm"
 mkdir -p "$HOME/.config/mise"
@@ -148,6 +149,10 @@ create_symlink "$DOTFILES_DIR/.config/tmux/.tmux" "$HOME/.tmux"
 
 # Link Neovim configuration
 create_symlink "$DOTFILES_DIR/.config/nvim" "$HOME/.config/nvim"
+
+# Link IdeaVim configuration. IdeaVim supports this XDG location, which keeps
+# the live configuration under ~/.config alongside Neovim.
+create_symlink "$DOTFILES_DIR/.config/ideavim/ideavimrc" "$HOME/.config/ideavim/ideavimrc"
 
 # Link Wezterm configuration
 create_symlink "$DOTFILES_DIR/term/wezterm.lua" "$HOME/.config/wezterm/wezterm.lua"
