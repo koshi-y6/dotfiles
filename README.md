@@ -1,7 +1,5 @@
 # dotfiles
 
-macOS用の個人設定です。
-
 ## Setup
 
 ```sh
@@ -20,5 +18,3 @@ cd ~/dotfiles
 - WezTerm
 - Hammerspoon
 - mise runtimes
-
-秘密鍵、認証情報、ローカルデータは含みません。
