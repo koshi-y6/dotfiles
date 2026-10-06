@@ -1,6 +1,9 @@
 local config = function()
     local cmp = require("cmp")
     local null_ls = require("null-ls")
+    local null_ls_helpers = require("null-ls.helpers")
+    local null_ls_methods = require("null-ls.methods")
+    local null_ls_command_resolver = require("null-ls.helpers.command_resolver")
     local prettier_cli = vim.fn.expand("~/.local/share/nvim/mason/packages/prettier/node_modules/prettier/bin/prettier.cjs")
     require("mason").setup()
     vim.opt.pumblend = 0
@@ -69,26 +72,56 @@ local config = function()
         },
     })
 
+    vim.lsp.config("yamlls", {
+        settings = {
+            yaml = {
+                keyOrdering = false,
+            },
+        },
+    })
+
     require("mason-lspconfig").setup({
         ensure_installed = {
             "pyright", "clangd", "lua_ls", "rust_analyzer",
-            "texlab", "html", "ts_ls", "jsonls",
+            "texlab", "html", "ts_ls", "jsonls", "yamlls",
         },
         automatic_enable = true, -- Auto-enable installed servers via vim.lsp.enable()
     })
 
     require("mason-null-ls").setup({
-        ensure_installed = { "black", "prettier", "rustfmt", "hadolint" },
+        ensure_installed = { "black", "dprint", "prettier", "rustfmt", "hadolint" },
         automatic_installation = true,
+    })
+
+    local dprint = null_ls_helpers.make_builtin({
+        name = "dprint",
+        method = {
+            null_ls_methods.internal.FORMATTING,
+            null_ls_methods.internal.RANGE_FORMATTING,
+        },
+        filetypes = {
+            "typescript", "typescriptreact", "json", "jsonc", "yaml", "markdown",
+        },
+        generator_opts = {
+            command = "dprint",
+            args = { "fmt", "--stdin", "$FILENAME" },
+            to_stdin = true,
+            dynamic_command = null_ls_command_resolver.from_node_modules(),
+        },
+        factory = null_ls_helpers.formatter_factory,
     })
 
     null_ls.setup({
         sources = {
             null_ls.builtins.formatting.black,
+            dprint.with({
+                condition = function(utils)
+                    return utils.root_has_file({ "dprint.json", "dprint.jsonc" })
+                end,
+            }),
             null_ls.builtins.formatting.prettier.with({
                 filetypes = {
-                    "html", "htmldjango", "json", "yaml",
-                    "markdown", "css", "javascript", "typescript",
+                    "html", "htmldjango", "css",
                 },
             }),
         },

@@ -25,10 +25,9 @@ BACKUP_DIR="$HOME/.dotfiles_backup_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$BACKUP_DIR"
 echo -e "${YELLOW}Created backup directory: $BACKUP_DIR${NC}"
 
-# Neovim version to install via bob.
-# Pinned to the 0.11 series for compatibility with the nvim-treesitter
-# "master" branch (the "main" branch requires Neovim 0.12 + tree-sitter CLI).
-NVIM_VERSION="0.11.4"
+# Neovim version to install via bob. Keep this aligned with the current
+# lazy-lock.json and plugins that enable their Neovim 0.12 implementations.
+NVIM_VERSION="0.12.0"
 
 # Function to create symlinks
 create_symlink() {
@@ -183,10 +182,8 @@ install_homebrew() {
 
         if [[ "$OSTYPE" == "darwin"* ]]; then
             if [[ "$(uname -m)" == "arm64" ]]; then
-                echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> $HOME/.zprofile
                 eval "$(/opt/homebrew/bin/brew shellenv)"
             else
-                echo 'eval "$(/usr/local/bin/brew shellenv)"' >> $HOME/.zprofile
                 eval "$(/usr/local/bin/brew shellenv)"
             fi
         fi
@@ -313,8 +310,12 @@ install_homebrew
 
 # Install packages from Brewfile
 echo -e "${YELLOW}Installing packages from Brewfile...${NC}"
-brew bundle --file="$HOME/Brewfile"
-echo -e "${GREEN}Brewfile installation completed${NC}"
+if brew bundle --file="$HOME/Brewfile"; then
+    echo -e "${GREEN}Brewfile installation completed${NC}"
+else
+    echo -e "${RED}Brewfile installation failed. Fix the error above, then rerun ./install.sh.${NC}"
+    exit 1
+fi
 
 # Install runtimes via mise (Brewfile already installed mise)
 install_mise_runtimes

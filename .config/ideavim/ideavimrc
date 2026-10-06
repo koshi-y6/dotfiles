@@ -39,6 +39,8 @@ sethandler <C-j> i:vim
 sethandler <C-k> i:vim
 sethandler <C-l> i:vim
 sethandler <C-a> i:ide
+" Preserve Vim's Redo in Normal mode and register insertion in Insert mode.
+sethandler <C-r> a:vim
 
 " Code navigation -----------------------------------------------------------
 " <Action> mappings must be recursive mappings in IdeaVim, so use nmap rather
@@ -55,6 +57,10 @@ nmap gf <Action>(ReformatCode)
 nmap ge <Action>(ShowErrorDescription)
 nmap g] <Action>(GotoNextError)
 nmap g[ <Action>(GotoPreviousError)
+
+" Run and debug -------------------------------------------------------------
+nmap <leader>rr <Action>(Run)
+nmap <leader>rd <Action>(Debug)
 
 " Files and search -----------------------------------------------------------
 nmap <leader><Space> <Action>(SearchEverywhere)

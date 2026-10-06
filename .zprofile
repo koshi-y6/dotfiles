@@ -1,13 +1,16 @@
-eval $(/opt/homebrew/bin/brew shellenv)
-export PATH="/usr/local/texlive/2023/bin/x86_64-darwin:$PATH"                                                                                                                 
-export DYLD_LIBRARY_PATH=/opt/homebrew/Cellar/glib/2.76.4/lib:/opt/homebrew/Cellar/pango/1.50.14/lib:/opt/homebrew/Cellar/harfbuzz/8.0.1/lib:/opt/homebrew/Cellar/fontconfig/2.14.2/lib:$DYLD_LIBRARY_PATH
+# Homebrew supports both Apple Silicon and Intel Macs.
+if [[ -x /opt/homebrew/bin/brew ]]; then
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [[ -x /usr/local/bin/brew ]]; then
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
 
-export PATH="/opt/homebrew/opt/cocoapods:$PATH"  
+# User-installed commands (pipx, uv tools, etc.).
+export PATH="$HOME/.local/bin:$PATH"
 
+# TeX Live is installed separately from Homebrew. Use the stable symlink when
+# present instead of pinning an architecture and release year.
+[[ -d /Library/TeX/texbin ]] && export PATH="/Library/TeX/texbin:$PATH"
 
-# Created by `pipx` on 2025-05-22 15:39:27
-export PATH="$PATH:$HOME/.local/bin"
-
-# Added by OrbStack: command-line tools and integration
-# This won't be added again if you remove it.
-source ~/.orbstack/shell/init.zsh 2>/dev/null || :
+# Keep this optional for machines where OrbStack is installed manually.
+[[ -r "$HOME/.orbstack/shell/init.zsh" ]] && source "$HOME/.orbstack/shell/init.zsh"

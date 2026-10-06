@@ -3,7 +3,7 @@ tap "gromgit/fuse"
 tap "heroku/brew"
 tap "jstkdng/programs"
 tap "laishulu/homebrew"
-tap "zegervdv/zathura"
+tap "homebrew-zathura/zathura", "https://github.com/homebrew-zathura/homebrew-zathura.git"
 
 # === Core CLI ===
 brew "mise"
@@ -16,6 +16,7 @@ brew "fzf"
 brew "peco"
 brew "ripgrep"
 brew "zoxide"
+brew "direnv"
 brew "tree"
 brew "watch"
 brew "wget"
@@ -23,6 +24,11 @@ brew "yazi"
 brew "zplug"
 brew "bib-tool"
 brew "lazygit"
+brew "git-secrets"
+brew "tree-sitter"
+brew "tree-sitter-cli"
+brew "uv"
+brew "ykman"
 
 # === Build / System Libraries ===
 brew "cmake"
@@ -57,10 +63,15 @@ brew "latexindent"
 # === Database Servers ===
 brew "mysql"
 brew "mysql-client"
-brew "redis", restart_service: :changed
+brew "redis"
 
 # === Container / VM ===
 brew "colima"
+brew "docker"
+brew "docker-buildx"
+brew "docker-compose"
+brew "qemu"
+brew "lima-additional-guestagents"
 
 # === Mobile Dev ===
 brew "cocoapods"
@@ -72,12 +83,11 @@ brew "opencv"
 brew "unar"
 
 # === External taps ===
-brew "gromgit/fuse/sshfs-mac"
 brew "heroku/brew/heroku"
 brew "jstkdng/programs/ueberzugpp"
 brew "laishulu/homebrew/macism"
-brew "zegervdv/zathura/zathura"
-brew "zegervdv/zathura/zathura-pdf-poppler"
+brew "homebrew-zathura/zathura/zathura"
+brew "homebrew-zathura/zathura/zathura-pdf-poppler"
 
 # === Fonts ===
 cask "font-fira-code-nerd-font"
@@ -85,3 +95,19 @@ cask "font-hack-nerd-font"
 cask "font-hackgen"
 cask "font-hackgen-nerd"
 cask "hammerspoon"
+
+# === Applications ===
+cask "background-music"
+cask "chatgpt"
+cask "claude"
+cask "claude-code"
+cask "codex"
+cask "craft"
+cask "figma"
+cask "google-chrome"
+cask "intellij-idea"
+cask "libreoffice"
+cask "notion"
+cask "podman-desktop"
+cask "slack"
+cask "wezterm"

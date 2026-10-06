@@ -1,8 +1,11 @@
+local has_nvim_012 = vim.fn.has("nvim-0.12") == 1
+
 require("lazy").setup({
     defaults = {
         lazy = true,
         version = nil,
     },
+
     -- spec = {
     --     require("plugins.nightfox"),
     -- },
@@ -49,7 +52,27 @@ require("lazy").setup({
         config = require("configs.telescope"),
     },
     {
+        "mistweaverco/kulala.nvim",
+        enabled = has_nvim_012,
+        ft = { "http", "rest" },
+        keys = {
+            { "<leader>rr", function() require("kulala").run() end, desc = "Kulala: Run request", ft = { "http", "rest" } },
+            { "<leader>ra", function() require("kulala").run_all() end, desc = "Kulala: Run all requests", ft = { "http", "rest" } },
+            { "<leader>rb", function() require("kulala").scratchpad() end, desc = "Kulala: Scratchpad" },
+            { "<leader>ro", function() require("kulala").open() end, desc = "Kulala: Open UI", ft = { "http", "rest" } },
+        },
+        opts = {
+            treesitter = {
+                cli_path = "/opt/homebrew/bin/tree-sitter",
+            },
+            ui = {
+                display_mode = "float",
+            },
+        },
+    },
+    {
         "rest-nvim/rest.nvim",
+        enabled = not has_nvim_012,
         tag = "v3.8.5",
         build = false,
         ft = { "http" },
@@ -133,6 +156,7 @@ require("lazy").setup({
     },
     {
         "williamboman/mason-lspconfig.nvim",
+        event = { "BufReadPre", "BufNewFile" },
         dependencies = {
             { "williamboman/mason.nvim" },
             { "neovim/nvim-lspconfig" },

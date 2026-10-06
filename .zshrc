@@ -8,8 +8,10 @@ fi
 # ────────────────────────────────────────────────────────────────
 # Brew prefix cache & environment variables
 # ────────────────────────────────────────────────────────────────
-BREW_PREFIX=${BREW_PREFIX:-$(brew --prefix)}
-export ZPLUG_HOME=$BREW_PREFIX/opt/zplug
+if (( $+commands[brew] )); then
+  BREW_PREFIX=${BREW_PREFIX:-$(brew --prefix)}
+  export ZPLUG_HOME="$BREW_PREFIX/opt/zplug"
+fi
 
 # ────────────────────────────────────────────────────────────────
 # PATH settings
@@ -24,26 +26,28 @@ path=(
 # ────────────────────────────────────────────────────────────────
 # zplug init and plugins
 # ────────────────────────────────────────────────────────────────
-if [[ ! -f $ZPLUG_HOME/init.zsh.zwc || $ZPLUG_HOME/init.zsh -nt $ZPLUG_HOME/init.zsh.zwc ]]; then
-  zcompile $ZPLUG_HOME/init.zsh
+if [[ -n ${ZPLUG_HOME:-} && -r "$ZPLUG_HOME/init.zsh" ]]; then
+  if [[ ! -f "$ZPLUG_HOME/init.zsh.zwc" || "$ZPLUG_HOME/init.zsh" -nt "$ZPLUG_HOME/init.zsh.zwc" ]]; then
+    zcompile "$ZPLUG_HOME/init.zsh"
+  fi
+  source "$ZPLUG_HOME/init.zsh"
+
+  zplug "zsh-users/zsh-autosuggestions"
+  zplug "zsh-users/zsh-completions"
+  zplug "zsh-users/zsh-syntax-highlighting", defer:2
+
+  if ! zplug check --verbose; then
+    printf "Installing missing zplug plugins...\n"
+    zplug install
+  fi
+
+  zplug load
 fi
-source $ZPLUG_HOME/init.zsh
-
-zplug "zsh-users/zsh-autosuggestions"
-zplug "zsh-users/zsh-completions"
-zplug "zsh-users/zsh-syntax-highlighting", defer:2
-
-if ! zplug check --verbose; then
-  printf "Installing missing zplug plugins...\n"
-  zplug install
-fi
-
-zplug load
 
 # ────────────────────────────────────────────────────────────────
 # mise (replaces pyenv, nvm, rustup)
 # ────────────────────────────────────────────────────────────────
-eval "$(mise activate zsh)"
+(( $+commands[mise] )) && eval "$(mise activate zsh)"
 
 # ────────────────────────────────────────────────────────────────
 # Prezto (if installed)
@@ -59,7 +63,8 @@ fi
 # ────────────────────────────────────────────────────────────────
 # Powerlevel10k theme and config
 # ────────────────────────────────────────────────────────────────
-source "${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k/powerlevel10k.zsh-theme"
+P10K_THEME="${ZDOTDIR:-$HOME}/.zprezto/modules/prompt/external/powerlevel10k/powerlevel10k.zsh-theme"
+[[ -r "$P10K_THEME" ]] && source "$P10K_THEME"
 
 P10K_CONFIG=~/.p10k.zsh
 if [[ -f "$P10K_CONFIG" ]]; then
@@ -72,10 +77,17 @@ fi
 # ────────────────────────────────────────────────────────────────
 # zoxide (fast cd)
 # ────────────────────────────────────────────────────────────────
-if [[ ! -f ${ZDOTDIR:-$HOME}/.zoxide.zsh || -z "$(command -v zoxide)" ]]; then
-  zoxide init zsh > ${ZDOTDIR:-$HOME}/.zoxide.zsh
+if (( $+commands[zoxide] )) && [[ ! -f ${ZDOTDIR:-$HOME}/.zoxide.zsh ]]; then
+  zoxide init zsh > "${ZDOTDIR:-$HOME}/.zoxide.zsh"
 fi
-source ${ZDOTDIR:-$HOME}/.zoxide.zsh
+[[ -r ${ZDOTDIR:-$HOME}/.zoxide.zsh ]] && source "${ZDOTDIR:-$HOME}/.zoxide.zsh"
+
+# ────────────────────────────────────────────────────────────────
+# direnv (per-directory environment variables)
+# ────────────────────────────────────────────────────────────────
+if (( $+commands[direnv] )); then
+  eval "$(direnv hook zsh)"
+fi
 
 # ────────────────────────────────────────────────────────────────
 # ghq repository selector
@@ -119,14 +131,8 @@ bindkey '^R' peco-history-selection
 # ────────────────────────────────────────────────────────────────
 # Misc environment settings
 # ────────────────────────────────────────────────────────────────
-export DYLD_FALLBACK_LIBRARY_PATH="$BREW_PREFIX/lib:$DYLD_FALLBACK_LIBRARY_PATH"
+[[ -n ${BREW_PREFIX:-} ]] && export DYLD_FALLBACK_LIBRARY_PATH="$BREW_PREFIX/lib:${DYLD_FALLBACK_LIBRARY_PATH:-}"
 ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=cyan'
-
-# Redundant fallback (safe)
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-# Created by `pipx` on 2025-05-22 15:39:27
-export PATH="$PATH:$HOME/.local/bin"
 
 export SERENA_HOME="$HOME/serena"
 alias serena="uv run --directory \$SERENA_HOME serena"
@@ -134,8 +140,8 @@ alias serena="uv run --directory \$SERENA_HOME serena"
 # alias
 alias pwdc='pwd | pbcopy && pwd'
 
-export PATH="/opt/homebrew/opt/libomp/bin:$PATH"
-export PATH="/opt/homebrew/opt/llvm/bin:$PATH"
-export PATH="/opt/homebrew/opt/openjdk/bin:$PATH"
+for brew_tool in libomp llvm openjdk; do
+  [[ -n ${BREW_PREFIX:-} && -d "$BREW_PREFIX/opt/$brew_tool/bin" ]] && path=("$BREW_PREFIX/opt/$brew_tool/bin" $path)
+done
 # Neovim (bob)
 [ -f "$HOME/.local/share/bob/env/env.sh" ] && . "$HOME/.local/share/bob/env/env.sh"
